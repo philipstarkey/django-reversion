@@ -70,26 +70,25 @@ class Command(BaseRevisionCommand):
                     ),
                     "object_id",
                 )
+                live_objs = live_objs.order_by()
                 # Save all the versions.
-                ids = list(live_objs.values_list("pk", flat=True).order_by())
-                total = len(ids)
-                for i in range(0, total, batch_size):
-                    chunked_ids = ids[i:i+batch_size]
-                    objects = live_objs.in_bulk(chunked_ids)
-                    for obj in objects.values():
-                        with create_revision(using=using):
-                            if meta:
-                                for model, values in zip(meta_models, meta_values):
-                                    add_meta(model, **values)
-                            set_comment(comment)
-                            add_to_revision(obj, model_db=model_db)
-                        created_count += 1
-                    reset_queries()
-                    if verbosity >= 2:
-                        self.stdout.write("- Created {created_count} / {total}".format(
-                            created_count=created_count,
-                            total=total,
-                        ))
+                total = live_objs.count()
+                for obj in live_objs.iterator(batch_size):
+                    with create_revision(using=using):
+                        if meta:
+                            for model, values in zip(meta_models, meta_values):
+                                add_meta(model, **values)
+                        set_comment(comment)
+                        add_to_revision(obj, model_db=model_db)
+                    created_count += 1
+                    # Print out a message every batch_size if feeling extra verbose
+                    if not created_count % batch_size:
+                        reset_queries()
+                        if verbosity >= 2:
+                            self.stdout.write("- Created {created_count} / {total}".format(
+                                created_count=created_count,
+                                total=total,
+                            ))
                 # Print out a message, if feeling verbose.
                 if verbosity >= 1:
                     self.stdout.write("- Created {total} / {total}".format(
