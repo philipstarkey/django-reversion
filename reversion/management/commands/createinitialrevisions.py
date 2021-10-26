@@ -2,7 +2,6 @@ import json
 
 from django.apps import apps
 from django.core.management import CommandError
-from django.conf import settings
 from django.db import connections, reset_queries, transaction, router
 from reversion.models import Revision, Version, _safe_subquery
 from reversion.management.commands import BaseRevisionCommand
