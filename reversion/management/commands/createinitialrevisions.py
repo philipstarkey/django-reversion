@@ -102,7 +102,7 @@ class Command(BaseRevisionCommand):
                     self.stdout.write("- Created {total} / {total}".format(
                         total=total,
                     ))
-                    
+
     def create_revision(self, obj, using, meta, meta_models, meta_values, comment, model_db):
         with create_revision(using=using):
             if meta:
@@ -110,7 +110,7 @@ class Command(BaseRevisionCommand):
                     add_meta(model, **values)
             set_comment(comment)
             add_to_revision(obj, model_db=model_db)
-            
+
     def batch_complete(self, verbosity, created_count, total):
         reset_queries()
         if verbosity >= 2:
@@ -118,4 +118,3 @@ class Command(BaseRevisionCommand):
                 created_count=created_count,
                 total=total,
             ))
-            
