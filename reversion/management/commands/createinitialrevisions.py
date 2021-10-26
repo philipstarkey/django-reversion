@@ -53,7 +53,8 @@ class Command(BaseRevisionCommand):
         meta_values = meta.values()
         # Determine if we should use queryset.iterator()
         using = using or router.db_for_write(Revision)
-        use_iterator = connections[using].vendor in ("postgresql",) and not settings.DISABLE_SERVER_SIDE_CURSORS
+        server_side_cursors = not connections[using].settings_dict.get('DISABLE_SERVER_SIDE_CURSORS')
+        use_iterator = connections[using].vendor in ("postgresql",) and server_side_cursors
         # Create revisions.
         with transaction.atomic(using=using):
             for model in self.get_models(options):
