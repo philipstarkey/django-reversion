@@ -76,7 +76,6 @@ class Command(BaseRevisionCommand):
                 live_objs = live_objs.order_by()
                 # Save all the versions.
                 if use_iterator:
-                    print("USING ITERATOR")
                     total = live_objs.count()
                     if total:
                         for obj in live_objs.iterator(batch_size):
